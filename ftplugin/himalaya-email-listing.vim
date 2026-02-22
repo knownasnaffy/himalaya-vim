@@ -4,6 +4,7 @@ setlocal nomodifiable
 setlocal nowrap
 
 call himalaya#keybinds#define([
+  \['n', 'gA'  , 'account#select'                ],
   \['n', 'gm'  , 'folder#select'                 ],
   \['n', 'gp'  , 'folder#select_previous_page'   ],
   \['n', 'gn'  , 'folder#select_next_page'       ],
