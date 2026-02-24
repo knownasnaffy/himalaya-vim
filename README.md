@@ -15,6 +15,7 @@
 
 - [Installation](#installation)
 - [Configuration](#configuration)
+  - [`g:himalaya_account_picker`](#ghimalaya_account_picker)
   - [`g:himalaya_always_confirm`](#ghimalaya_always_confirm)
   - [`g:himalaya_complete_contact_cmd`](#ghimalaya_complete_contact_cmd)
   - [`g:himalaya_config_path`](#ghimalaya_config_path)
@@ -23,6 +24,7 @@
   - [`g:himalaya_folder_picker_telescope_preview`](#ghimalaya_folder_picker_telescope_preview)
   - [`g:himalaya_folder_picker`](#ghimalaya_folder_picker)
 - [Usage](#usage)
+  - [List accounts](#list-accounts)
   - [List folders](#list-folders)
   - [List, filter and sort envelopes](#list-filter-and-sort-envelopes)
   - [Read message](#read-message)
@@ -61,6 +63,21 @@ It is highly recommanded to have those Vim options on:
 syntax on
 filetype plugin on
 set hidden
+```
+
+### `g:himalaya_account_picker`
+
+Defines the provider used for selecting accounts (default keybind: `gA`):
+
+- `native` (default): a vim native input
+- `fzf`: <https://github.com/junegunn/fzf.vim>
+- `fzflua`: <https://github.com/ibhagwan/fzf-lua>
+- `telescope`: <https://github.com/nvim-telescope/telescope.nvim>
+
+If no value given, the first loaded (and available) provider will be used (telescope > fzf > native).
+
+```vim
+let g:himalaya_account_picker = 'native' | 'fzf' | 'fzflua' | 'telescope'
 ```
 
 ### `g:himalaya_always_confirm`
@@ -119,6 +136,14 @@ let g:himalaya_folder_picker = 'native' | 'fzf' | 'fzflua' | 'telescope'
 
 ## Usage
 
+### List accounts
+
+```vim
+:HimalayaAccounts
+```
+
+Opens an account picker to switch between configured accounts. The picker respects the `g:himalaya_account_picker` configuration or auto-detects available pickers (telescope > fzflua > fzf > native).
+
 ### List folders
 
 With the native picker (default):
@@ -141,6 +166,7 @@ With the [fzf.vim](https://github.com/junegunn/fzf.vim) picker:
 
 | Function                                               | Keybind   |
 |--------------------------------------------------------|-----------|
+| Change the current account                             | `gA`      |
 | Change the current folder                              | `gm`      |
 | Show previous page                                     | `gp`      |
 | Show next page                                         | `gn`      |
@@ -160,6 +186,7 @@ With the [fzf.vim](https://github.com/junegunn/fzf.vim) picker:
 Keybinds can be customized:
 
 ```vim
+nmap gA   <plug>(himalaya-account-select)
 nmap gm   <plug>(himalaya-folder-select)
 nmap gp   <plug>(himalaya-folder-select-previous-page)
 nmap gn   <plug>(himalaya-folder-select-next-page)
