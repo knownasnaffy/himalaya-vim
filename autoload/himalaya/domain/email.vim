@@ -189,43 +189,61 @@ function! himalaya#domain#email#process_draft() abort
     let folder = himalaya#domain#folder#current()
 
     while 1
+      " Pobranie decyzji od użytkownika
       let choice = input('(s)end, (d)raft, (q)uit or (c)ancel? ')
       let choice = tolower(choice)[0]
       redraw | echo
 
       if choice == 's'
+        " Tworzymy tymczasowy plik drafta
         let draft = tempname()
-	call writefile(getline(1, '$'), draft)
+        call writefile(getline(1, '$'), draft)
 
+        " Wysyłka maila
         call himalaya#request#plain({
         \ 'cmd': 'template send --account %s < %s',
         \ 'args': [shellescape(account), shellescape(draft)],
         \ 'msg': 'Sending email',
-        \ 'on_data': {-> delete(s:draft)},
-        \})
-
-        return himalaya#request#plain({
-        \ 'cmd': 'flag add --account %s --folder %s answered %s',
-        \ 'args': [shellescape(account), shellescape(folder), shellescape(s:id)],
-        \ 'msg': 'Adding answered flag',
         \ 'on_data': {-> delete(draft)},
         \})
+
+        " Flaga "answered" tylko jeśli istnieje s:id (odpowiedź na mail)
+        if !empty(s:id)
+          call himalaya#request#plain({
+          \ 'cmd': 'flag add --account %s --folder %s answered %s',
+          \ 'args': [shellescape(account), shellescape(folder), shellescape(s:id)],
+          \ 'msg': 'Adding answered flag',
+          \})
+        endif
+
+        return
+
       elseif choice == 'd'
+        " Zapisanie drafta
         let draft = tempname()
-	call writefile(getline(1, '$'), draft)
-        return himalaya#request#plain({
+        call writefile(getline(1, '$'), draft)
+
+        call himalaya#request#plain({
         \ 'cmd': 'template save --account %s --folder drafts < %s',
         \ 'args': [shellescape(account), shellescape(draft)],
         \ 'msg': 'Saving draft',
         \ 'on_data': {-> delete(draft)},
         \})
-      elseif choice == 'q'
+
         return
+
+      elseif choice == 'q'
+        " Wyjście bez zapisu
+        return
+
       elseif choice == 'c'
+        " Cofnięcie i powrót do trybu edycji
         call himalaya#domain#email#write(join(getline(1, '$'), "\n") . "\n")
         throw 'Prompt:Interrupt'
+
       endif
     endwhile
+
   catch
     if v:exception =~ ':Interrupt$'
       call interrupt()
